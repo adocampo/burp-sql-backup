@@ -1,0 +1,34 @@
+#!/bin/bash
+# Purpose: Backup mysql 
+# Author: Angel Docampo;
+# License: WTFPL
+
+NOW=$(date +"%d-%m-%Y")
+DEST="/var/lib/mysql-backup"
+# set mysql login info
+# if you don't want to use ~/.my.cnf file to store credentials
+# you need to set up there and use them on the commented command below
+#MUSER="<username>"
+#MPASS='<password>'
+MHOST="127.0.0.1" 
+ 
+# guess binary names
+MYSQL="$(which mysql)"
+MYSQLDUMP="$(which mysqldump)"
+GZIP="$(which gzip)"
+ 
+[ ! -d "${DEST}" ] && mkdir -p "${DEST}"
+# get all db names
+ # if you set up credentials on this script, uncomment the next line...
+#DBS="$($MYSQL -u $MUSER -h $MHOST -p$MPASS -Bse 'show databases')"
+#...and comment the following
+DBS="$($MYSQL -h $MHOST -Bse 'show databases')"
+for db in $DBS
+do
+ FILE=${DEST}/mysql-${db}.${NOW}-$(date +"%T").gz
+ # if you set up credentials on this script, uncomment the next line...
+ #$MYSQLDUMP --single-transaction -u $MUSER -h $MHOST -p$MPASS $db | $GZIP -9 > $FILE
+ #...and comment the following
+ $MYSQLDUMP --single-transaction -h $MHOST $db | $GZIP -9 > $FILE
+
+done

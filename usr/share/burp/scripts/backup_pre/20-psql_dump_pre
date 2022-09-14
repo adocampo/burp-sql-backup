@@ -1,0 +1,25 @@
+#!/bin/bash
+# Purpose: Backup pgsql on localhost
+# Author: Angel Docampo;
+# License: WTFPL
+
+NOW=$(date +"%d-%m-%Y")
+DEST="/var/lib/pgsql-backup"
+# set psql login info
+PUSER="postgres"
+ 
+# guess binary names
+PSQL="$(which psql)"
+PGDUMP="$(which pg_dump)"
+GZIP="$(which gzip)"
+SUDO="$(which sudo)"
+ 
+[ ! -d "${DEST}" ] && mkdir -p "${DEST}"
+# get all db names
+DBS="$(sudo -u $PUSER $PSQL -U $PUSER -d postgres -c '\l' | grep '^ [a-zA-Z]' | grep -v 'template' | awk '{print $1}')"
+for db in $DBS
+do
+ FILE=${DEST}/pgsql-${db}.${NOW}-$(date +"%T").gz
+ # get around error 
+ $SUDO -u $PUSER $PGDUMP -U postgres $db | $GZIP -9 > $FILE
+done

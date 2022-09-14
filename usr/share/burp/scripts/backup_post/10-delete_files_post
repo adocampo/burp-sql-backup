@@ -1,0 +1,11 @@
+#!/bin/bash
+# Purpose: Remove SQL dump files
+# Author: Angel Docampo;
+# License: WTFPL
+
+MYSQL_DEST="/var/lib/mysql-backup"
+PGSQL_DEST="/var/lib/pgsql-backup"
+
+# Delete all backup files older than one week
+find $MYSQL_DEST -type f -mtime +1 | xargs rm -f
+find $PGSQL_DEST -type f -mtime +1 | xargs rm -f
